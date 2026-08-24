@@ -25,7 +25,7 @@ export default function BoardClient({ id }: { id: string }) {
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
-      router.push(`/login?redirect=/board/${boardId}`);
+      router.push(`/login?redirect=/board?id=${boardId}`);
       return;
     }
 

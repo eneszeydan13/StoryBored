@@ -51,7 +51,7 @@ export default function JoinClient({ code }: { code: string }) {
       if (res.ok) {
         const data = await res.json();
         if (data.boardId) {
-          router.push(`/board/${data.boardId}`);
+          router.push(`/board?id=${data.boardId}`);
           return;
         }
       }
@@ -60,7 +60,7 @@ export default function JoinClient({ code }: { code: string }) {
     }
     const localBoard = clientStore.joinBoard(inviteCode);
     if (localBoard) {
-      router.push(`/board/${localBoard.id}`);
+      router.push(`/board?id=${localBoard.id}`);
     } else {
       setError(t('msg_board_not_found'));
       setIsJoining(false);
@@ -216,7 +216,7 @@ export default function JoinClient({ code }: { code: string }) {
               </div>
             </div>
 
-            {/* Email (register mode) */}
+            {/* Email */}
             {mode === 'register' && (
               <div>
                 <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">

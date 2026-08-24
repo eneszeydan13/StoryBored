@@ -25,7 +25,8 @@ export function ShareModal({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setShareUrl(`${window.location.origin}/join/${inviteCode}`);
+      const base = window.location.pathname.startsWith('/StoryBored') ? '/StoryBored' : '';
+      setShareUrl(`${window.location.origin}${base}/join?code=${inviteCode}`);
     }
   }, [inviteCode]);
 

@@ -77,7 +77,7 @@ export default function HomePage() {
           setCreateModalOpen(false);
           setNewTitle('');
           setNewDescription('');
-          router.push(`/board/${data.board.id}`);
+          router.push(`/board?id=${data.board.id}`);
           return;
         }
       }
@@ -89,7 +89,7 @@ export default function HomePage() {
     setCreateModalOpen(false);
     setNewTitle('');
     setNewDescription('');
-    router.push(`/board/${localBoard.id}`);
+    router.push(`/board?id=${localBoard.id}`);
     setIsSubmitting(false);
   };
 
@@ -97,7 +97,7 @@ export default function HomePage() {
     e.preventDefault();
     if (!joinCode.trim()) return;
     const cleanCode = joinCode.trim().toUpperCase();
-    router.push(`/join/${cleanCode}`);
+    router.push(`/join?code=${cleanCode}`);
   };
 
   const handleDeleteBoard = async (e: React.MouseEvent, boardId: string) => {
@@ -173,7 +173,7 @@ export default function HomePage() {
                 {boards.map((b) => (
                   <Link
                     key={b.id}
-                    href={`/board/${b.id}`}
+                    href={`/board?id=${b.id}`}
                     className="group relative rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800/80 shadow-xs hover:shadow-md transition-all duration-180 p-5 flex flex-col justify-between min-h-[160px] hover:-translate-y-0.5"
                   >
                     <div className="masking-tape opacity-70" />
