@@ -15,6 +15,7 @@ import {
   Trash2,
   Loader2,
 } from 'lucide-react';
+import { clientStore } from '@/lib/clientStore';
 
 export default function HomePage() {
   const router = useRouter();
@@ -43,12 +44,15 @@ export default function HomePage() {
       if (res.ok) {
         const data = await res.json();
         setBoards(data.boards || []);
+        setIsLoadingBoards(false);
+        return;
       }
-    } catch (e) {
-      console.error('Failed to load boards', e);
-    } finally {
-      setIsLoadingBoards(false);
+    } catch {
+      //
     }
+    const localBoards = clientStore.getBoards();
+    setBoards(localBoards);
+    setIsLoadingBoards(false);
   };
 
   const handleCreateBoard = async (e: React.FormEvent) => {
@@ -67,20 +71,26 @@ export default function HomePage() {
           description: newDescription.trim() || null,
         }),
       });
-      const data = await res.json();
-      if (res.ok && data.board) {
-        setCreateModalOpen(false);
-        setNewTitle('');
-        setNewDescription('');
-        router.push(`/board/${data.board.id}`);
-      } else {
-        setError(data.error || t('msg_error'));
+      if (res.ok) {
+        const data = await res.json();
+        if (data.board) {
+          setCreateModalOpen(false);
+          setNewTitle('');
+          setNewDescription('');
+          router.push(`/board/${data.board.id}`);
+          return;
+        }
       }
     } catch {
-      setError(t('msg_error'));
-    } finally {
-      setIsSubmitting(false);
+      //
     }
+
+    const localBoard = clientStore.createBoard(newTitle, newDescription);
+    setCreateModalOpen(false);
+    setNewTitle('');
+    setNewDescription('');
+    router.push(`/board/${localBoard.id}`);
+    setIsSubmitting(false);
   };
 
   const handleJoinWithCode = (e: React.FormEvent) => {
@@ -95,14 +105,13 @@ export default function HomePage() {
     e.stopPropagation();
     if (!confirm(t('confirm'))) return;
 
+    clientStore.deleteBoard(boardId);
     try {
-      const res = await fetch(`/api/boards/${boardId}`, { method: 'DELETE' });
-      if (res.ok) {
-        setBoards((prev) => prev.filter((b) => b.id !== boardId));
-      }
-    } catch (e) {
-      console.error('Failed to delete board', e);
+      await fetch(`/api/boards/${boardId}`, { method: 'DELETE' });
+    } catch {
+      //
     }
+    setBoards((prev) => prev.filter((b) => b.id !== boardId));
   };
 
   return (

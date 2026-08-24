@@ -23,6 +23,7 @@ import { PostItCard } from './PostItCard';
 import { TicketModal } from './TicketModal';
 import { FilterBar } from './FilterBar';
 import { useI18n } from '@/lib/i18n/context';
+import { clientStore } from '@/lib/clientStore';
 
 interface KanbanBoardProps {
   initialBoard: BoardDetail;
@@ -237,44 +238,67 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
 
   const handleSaveTicket = async (ticketData: Partial<TicketItem>) => {
     if (editingTicket) {
-      // Update
-      const res = await fetch(`/api/tickets/${editingTicket.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ticketData),
-      });
-      if (res.ok) {
-        const data = await res.json();
+      // Optimistic update in clientStore
+      const updated = clientStore.updateTicket(editingTicket.id, ticketData);
+      if (updated) {
         setTickets((prev) =>
-          prev.map((t) => (t.id === editingTicket.id ? data.ticket : t))
+          prev.map((t) => (t.id === editingTicket.id ? updated : t))
         );
-        if (ticketData.state === 'COMPLETED' && editingTicket.state !== 'COMPLETED') {
-          triggerConfetti();
+      }
+      if (ticketData.state === 'COMPLETED' && editingTicket.state !== 'COMPLETED') {
+        triggerConfetti();
+      }
+      try {
+        const res = await fetch(`/api/tickets/${editingTicket.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ticketData),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ticket) {
+            setTickets((prev) =>
+              prev.map((t) => (t.id === editingTicket.id ? data.ticket : t))
+            );
+          }
         }
+      } catch {
+        //
       }
     } else {
       // Create
-      const res = await fetch(`/api/boards/${board.id}/tickets`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ticketData),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTickets((prev) => [...prev, data.ticket]);
-        if (ticketData.state === 'COMPLETED') {
-          triggerConfetti();
+      const created = clientStore.createTicket(board.id, ticketData);
+      setTickets((prev) => [...prev, created]);
+      if (ticketData.state === 'COMPLETED') {
+        triggerConfetti();
+      }
+      try {
+        const res = await fetch(`/api/boards/${board.id}/tickets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ticketData),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ticket) {
+            setTickets((prev) =>
+              prev.map((t) => (t.id === created.id ? data.ticket : t))
+            );
+          }
         }
+      } catch {
+        //
       }
     }
   };
 
   const handleDeleteTicket = async (ticketId: string) => {
-    const res = await fetch(`/api/tickets/${ticketId}`, {
-      method: 'DELETE',
-    });
-    if (res.ok) {
-      setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    clientStore.deleteTicket(ticketId);
+    setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    try {
+      await fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' });
+    } catch {
+      //
     }
   };
 
@@ -283,6 +307,7 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
     if (!ticket || ticket.state === newState) return;
 
     // Optimistic update
+    clientStore.updateTicket(ticketId, { state: newState });
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, state: newState } : t))
     );
@@ -297,9 +322,8 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ state: newState }),
       });
-    } catch (e) {
-      console.error('Failed to move ticket', e);
-      fetchBoardData();
+    } catch {
+      //
     }
   };
 

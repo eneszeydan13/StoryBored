@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { UserSummary } from '@/types';
+import { clientStore } from '@/lib/clientStore';
 
 interface AuthContextType {
   user: UserSummary | null;
@@ -26,10 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         setUser(data.user || null);
       } else {
-        setUser(null);
+        const clientUser = clientStore.getCurrentUser();
+        setUser(clientUser);
       }
     } catch {
-      setUser(null);
+      const clientUser = clientStore.getCurrentUser();
+      setUser(clientUser);
     } finally {
       setIsLoading(false);
     }
@@ -46,15 +49,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Login failed' };
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        clientStore.setCurrentUser(data.user);
+        return { success: true };
       }
-      setUser(data.user);
-      return { success: true };
     } catch {
-      return { success: false, error: 'Network error occurred' };
+      // Static client fallback
     }
+    const localUser = clientStore.login(credentials.identifier);
+    setUser(localUser);
+    return { success: true };
   };
 
   const register = async (data: { username: string; email: string; password: string; color?: string }) => {
@@ -64,44 +70,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      const resData = await res.json();
-      if (!res.ok) {
-        return { success: false, error: resData.error || 'Registration failed' };
+      if (res.ok) {
+        const resData = await res.json();
+        setUser(resData.user);
+        clientStore.setCurrentUser(resData.user);
+        return { success: true };
       }
-      setUser(resData.user);
-      return { success: true };
     } catch {
-      return { success: false, error: 'Network error occurred' };
+      // Static client fallback
     }
+    const localUser = clientStore.register(data);
+    setUser(localUser);
+    return { success: true };
   };
 
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (e) {
-      console.error('Logout error', e);
+    } catch {
+      //
     } finally {
+      clientStore.setCurrentUser(null);
       setUser(null);
-      window.location.href = '/login';
+      window.location.href = './login';
     }
   };
 
   const updateUserColor = async (color: string) => {
+    if (!user) return false;
+    const updated = { ...user, color };
+    setUser(updated);
+    clientStore.setCurrentUser(updated);
     try {
-      const res = await fetch('/api/auth/me', {
+      await fetch('/api/auth/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ color }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-        return true;
-      }
-      return false;
     } catch {
-      return false;
+      //
     }
+    return true;
   };
 
   return (
