@@ -58,7 +58,7 @@ export default function JoinClient({ code }: { code: string }) {
     } catch {
       //
     }
-    const localBoard = clientStore.joinBoard(inviteCode);
+    const localBoard = await clientStore.joinBoard(inviteCode);
     if (localBoard) {
       router.push(`/board?id=${localBoard.id}`);
     } else {

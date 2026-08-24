@@ -50,7 +50,7 @@ export default function HomePage() {
     } catch {
       //
     }
-    const localBoards = clientStore.getBoards();
+    const localBoards = await clientStore.getBoards();
     setBoards(localBoards);
     setIsLoadingBoards(false);
   };
@@ -85,7 +85,7 @@ export default function HomePage() {
       //
     }
 
-    const localBoard = clientStore.createBoard(newTitle, newDescription);
+    const localBoard = await clientStore.createBoard(newTitle, newDescription);
     setCreateModalOpen(false);
     setNewTitle('');
     setNewDescription('');
@@ -105,7 +105,7 @@ export default function HomePage() {
     e.stopPropagation();
     if (!confirm(t('confirm'))) return;
 
-    clientStore.deleteBoard(boardId);
+    await clientStore.deleteBoard(boardId);
     try {
       await fetch(`/api/boards/${boardId}`, { method: 'DELETE' });
     } catch {

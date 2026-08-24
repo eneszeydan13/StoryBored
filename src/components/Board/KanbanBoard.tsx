@@ -239,7 +239,7 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
   const handleSaveTicket = async (ticketData: Partial<TicketItem>) => {
     if (editingTicket) {
       // Optimistic update in clientStore
-      const updated = clientStore.updateTicket(editingTicket.id, ticketData);
+      const updated = await clientStore.updateTicket(editingTicket.id, ticketData);
       if (updated) {
         setTickets((prev) =>
           prev.map((t) => (t.id === editingTicket.id ? updated : t))
@@ -267,7 +267,7 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
       }
     } else {
       // Create
-      const created = clientStore.createTicket(board.id, ticketData);
+      const created = await clientStore.createTicket(board.id, ticketData);
       setTickets((prev) => [...prev, created]);
       if (ticketData.state === 'COMPLETED') {
         triggerConfetti();
@@ -293,7 +293,7 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
   };
 
   const handleDeleteTicket = async (ticketId: string) => {
-    clientStore.deleteTicket(ticketId);
+    await clientStore.deleteTicket(ticketId);
     setTickets((prev) => prev.filter((t) => t.id !== ticketId));
     try {
       await fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' });
@@ -307,7 +307,7 @@ export function KanbanBoard({ initialBoard }: KanbanBoardProps) {
     if (!ticket || ticket.state === newState) return;
 
     // Optimistic update
-    clientStore.updateTicket(ticketId, { state: newState });
+    await clientStore.updateTicket(ticketId, { state: newState });
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, state: newState } : t))
     );

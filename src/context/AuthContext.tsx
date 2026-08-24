@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Static client fallback
     }
-    const localUser = clientStore.login(credentials.identifier);
+    const localUser = await clientStore.login(credentials.identifier);
     setUser(localUser);
     return { success: true };
   };
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Static client fallback
     }
-    const localUser = clientStore.register(data);
+    const localUser = await clientStore.register(data);
     setUser(localUser);
     return { success: true };
   };

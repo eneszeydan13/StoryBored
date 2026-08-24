@@ -49,7 +49,7 @@ export default function BoardClient({ id }: { id: string }) {
     } catch {
       //
     }
-    const localBoard = clientStore.getBoard(boardId);
+    const localBoard = await clientStore.getBoard(boardId);
     if (localBoard) {
       setBoard(localBoard);
       setError('');

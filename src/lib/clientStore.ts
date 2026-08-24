@@ -1,6 +1,6 @@
 import { UserSummary, BoardDetail, BoardSummary, TicketItem, WorkflowState } from '@/types';
+import { supabase } from './supabase';
 
-// Default initial demo state for GitHub Pages
 const DEFAULT_USERS: UserSummary[] = [
   { id: 'usr-enes', username: 'enes', email: 'enes@storyboard.dev', color: '#3B82F6' },
   { id: 'usr-alex', username: 'alex_dev', email: 'alex@storyboard.dev', color: '#8B5CF6' },
@@ -110,7 +110,7 @@ const DEFAULT_BOARD: BoardDetail = {
     {
       id: 't-6',
       title: 'Database schema & Cross-device sync',
-      description: 'SQLite with Prisma ORM and live polling to sync tickets between PC and phone without reload.',
+      description: 'Supabase PostgreSQL with live polling to sync tickets between PC and phone without reload.',
       state: 'COMPLETED',
       priority: 'HIGH',
       color: 'green',
@@ -146,7 +146,6 @@ function setStorage<T>(key: string, value: T): void {
   }
 }
 
-// Store manager
 export const clientStore = {
   getUsers: (): UserSummary[] => {
     return getStorage('storyboard_users', DEFAULT_USERS);
@@ -160,15 +159,30 @@ export const clientStore = {
     setStorage('storyboard_current_user', user);
   },
 
-  login: (identifier: string): UserSummary => {
-    const users = clientStore.getUsers();
+  login: async (identifier: string): Promise<UserSummary> => {
     const clean = identifier.trim().toLowerCase();
+    try {
+      const { data } = await supabase
+        .from('User')
+        .select('*')
+        .or(`username.ilike.${clean},email.ilike.${clean}`)
+        .single();
+      if (data) {
+        const u: UserSummary = { id: data.id, username: data.username, email: data.email, color: data.color };
+        clientStore.setCurrentUser(u);
+        return u;
+      }
+    } catch {
+      //
+    }
+
+    const users = clientStore.getUsers();
     const found = users.find((u) => u.username.toLowerCase() === clean || u.email.toLowerCase() === clean);
     if (found) {
       clientStore.setCurrentUser(found);
       return found;
     }
-    // Auto-create user if demo
+
     const newUser: UserSummary = {
       id: 'usr-' + Date.now(),
       username: clean.split('@')[0],
@@ -178,24 +192,80 @@ export const clientStore = {
     const updated = [...users, newUser];
     setStorage('storyboard_users', updated);
     clientStore.setCurrentUser(newUser);
+
+    try {
+      await supabase.from('User').insert([{
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        passwordHash: 'demo',
+        color: newUser.color,
+      }]);
+    } catch {
+      //
+    }
+
     return newUser;
   },
 
-  register: (data: { username: string; email: string; color?: string }): UserSummary => {
-    const users = clientStore.getUsers();
+  register: async (data: { username: string; email: string; color?: string }): Promise<UserSummary> => {
     const newUser: UserSummary = {
       id: 'usr-' + Date.now(),
       username: data.username.trim(),
       email: data.email.trim(),
       color: data.color || '#3B82F6',
     };
+    const users = clientStore.getUsers();
     const updated = [...users, newUser];
     setStorage('storyboard_users', updated);
     clientStore.setCurrentUser(newUser);
+
+    try {
+      await supabase.from('User').insert([{
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        passwordHash: 'demo',
+        color: newUser.color,
+      }]);
+    } catch {
+      //
+    }
+
     return newUser;
   },
 
-  getBoards: (): BoardSummary[] => {
+  getBoards: async (): Promise<BoardSummary[]> => {
+    try {
+      const { data: remoteBoards } = await supabase
+        .from('Board')
+        .select(`
+          *,
+          tickets:Ticket(count),
+          members:BoardMember(count)
+        `)
+        .order('createdAt', { ascending: false });
+
+      if (remoteBoards && remoteBoards.length > 0) {
+        return remoteBoards.map((b: any) => ({
+          id: b.id,
+          title: b.title,
+          description: b.description,
+          inviteCode: b.inviteCode,
+          ownerId: b.ownerId,
+          createdAt: b.createdAt,
+          updatedAt: b.updatedAt,
+          _count: {
+            tickets: b.tickets?.[0]?.count || 0,
+            members: b.members?.[0]?.count || 1,
+          },
+          role: 'OWNER',
+        }));
+      }
+    } catch {
+      //
+    }
+
     const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
     return boards.map((b) => ({
       id: b.id,
@@ -213,17 +283,49 @@ export const clientStore = {
     }));
   },
 
-  getBoard: (id: string): BoardDetail | null => {
+  getBoard: async (idOrCode: string): Promise<BoardDetail | null> => {
+    try {
+      const { data: remoteBoard } = await supabase
+        .from('Board')
+        .select(`
+          *,
+          owner:User!BoardOwner(*),
+          members:BoardMember(*, user:User(*)),
+          tickets:Ticket(*, assignee:User!TicketAssignee(*))
+        `)
+        .or(`id.eq.${idOrCode},inviteCode.eq.${idOrCode.toUpperCase()}`)
+        .single();
+
+      if (remoteBoard) {
+        return {
+          id: remoteBoard.id,
+          title: remoteBoard.title,
+          description: remoteBoard.description,
+          inviteCode: remoteBoard.inviteCode,
+          ownerId: remoteBoard.ownerId,
+          createdAt: remoteBoard.createdAt,
+          updatedAt: remoteBoard.updatedAt,
+          owner: remoteBoard.owner || DEFAULT_USERS[0],
+          members: remoteBoard.members || [],
+          tickets: remoteBoard.tickets || [],
+        };
+      }
+    } catch {
+      //
+    }
+
     const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
-    return boards.find((b) => b.id === id || b.inviteCode === id) || null;
+    const found = boards.find((b) => b.id === idOrCode || b.inviteCode.toUpperCase() === idOrCode.toUpperCase());
+    return found || null;
   },
 
-  createBoard: (title: string, description?: string): BoardDetail => {
-    const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
+  createBoard: async (title: string, description?: string): Promise<BoardDetail> => {
     const user = clientStore.getCurrentUser() || DEFAULT_USERS[0];
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const boardId = 'board-' + Date.now();
+
     const newBoard: BoardDetail = {
-      id: 'board-' + Date.now(),
+      id: boardId,
       title: title.trim(),
       description: description?.trim() || null,
       inviteCode,
@@ -232,25 +334,95 @@ export const clientStore = {
       updatedAt: new Date().toISOString(),
       owner: user,
       members: [
-        { id: 'm-' + Date.now(), boardId: 'board-' + Date.now(), userId: user.id, role: 'OWNER', joinedAt: new Date().toISOString(), user },
+        { id: 'm-' + Date.now(), boardId, userId: user.id, role: 'OWNER', joinedAt: new Date().toISOString(), user },
       ],
       tickets: [],
     };
+
+    // Save locally
+    const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
     setStorage('storyboard_boards', [newBoard, ...boards]);
+
+    // Save to Supabase cloud
+    try {
+      await supabase.from('User').upsert([{
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        passwordHash: 'demo',
+        color: user.color,
+      }]);
+
+      await supabase.from('Board').insert([{
+        id: newBoard.id,
+        title: newBoard.title,
+        description: newBoard.description,
+        inviteCode: newBoard.inviteCode,
+        ownerId: user.id,
+      }]);
+
+      await supabase.from('BoardMember').insert([{
+        id: 'm-' + Date.now(),
+        boardId: newBoard.id,
+        userId: user.id,
+        role: 'OWNER',
+      }]);
+    } catch (e) {
+      console.error('Supabase cloud board creation fallback', e);
+    }
+
     return newBoard;
   },
 
-  deleteBoard: (id: string) => {
+  deleteBoard: async (id: string) => {
     const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
     setStorage('storyboard_boards', boards.filter((b) => b.id !== id));
+    try {
+      await supabase.from('Board').delete().eq('id', id);
+    } catch {
+      //
+    }
   },
 
-  joinBoard: (code: string): BoardDetail | null => {
-    const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
-    const clean = code.trim().toUpperCase();
-    const board = boards.find((b) => b.inviteCode === clean || b.id === code);
-    if (!board) return null;
+  joinBoard: async (code: string): Promise<BoardDetail | null> => {
+    const cleanCode = code.trim().toUpperCase();
     const user = clientStore.getCurrentUser() || DEFAULT_USERS[0];
+
+    // Try cloud first
+    try {
+      const { data: remoteBoard } = await supabase
+        .from('Board')
+        .select('*')
+        .eq('inviteCode', cleanCode)
+        .single();
+
+      if (remoteBoard) {
+        await supabase.from('User').upsert([{
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          passwordHash: 'demo',
+          color: user.color,
+        }]);
+
+        await supabase.from('BoardMember').upsert([{
+          id: 'm-' + Date.now(),
+          boardId: remoteBoard.id,
+          userId: user.id,
+          role: 'MEMBER',
+        }]);
+
+        return clientStore.getBoard(remoteBoard.id);
+      }
+    } catch {
+      //
+    }
+
+    // Local fallback
+    const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
+    const board = boards.find((b) => b.inviteCode === cleanCode || b.id === code);
+    if (!board) return null;
+
     if (!board.members.some((m) => m.userId === user.id)) {
       board.members.push({
         id: 'm-' + Date.now(),
@@ -265,14 +437,12 @@ export const clientStore = {
     return board;
   },
 
-  createTicket: (boardId: string, ticketData: Partial<TicketItem>): TicketItem => {
-    const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
-    const board = boards.find((b) => b.id === boardId) || boards[0];
+  createTicket: async (boardId: string, ticketData: Partial<TicketItem>): Promise<TicketItem> => {
     const user = clientStore.getCurrentUser() || DEFAULT_USERS[0];
-    const assignee = board.members.find((m) => m.user.id === ticketData.assigneeId)?.user || null;
+    const ticketId = 't-' + Date.now();
 
     const newTicket: TicketItem = {
-      id: 't-' + Date.now(),
+      id: ticketId,
       title: ticketData.title || 'Untitled',
       description: ticketData.description || null,
       state: ticketData.state || 'STORY',
@@ -280,22 +450,47 @@ export const clientStore = {
       color: ticketData.color || 'yellow',
       tags: ticketData.tags || '',
       storyPoints: ticketData.storyPoints || null,
-      order: board.tickets.length,
-      boardId: board.id,
+      order: 0,
+      boardId,
       creatorId: user.id,
       assigneeId: ticketData.assigneeId || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      assignee,
+      assignee: null,
       creator: user,
     };
 
+    const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
+    const board = boards.find((b) => b.id === boardId) || boards[0];
+    const assignee = board.members.find((m) => m.user.id === ticketData.assigneeId)?.user || null;
+    newTicket.assignee = assignee;
+
     board.tickets.push(newTicket);
     setStorage('storyboard_boards', boards);
+
+    try {
+      await supabase.from('Ticket').insert([{
+        id: newTicket.id,
+        title: newTicket.title,
+        description: newTicket.description,
+        state: newTicket.state,
+        priority: newTicket.priority,
+        color: newTicket.color,
+        tags: newTicket.tags,
+        storyPoints: newTicket.storyPoints,
+        order: newTicket.order,
+        boardId: newTicket.boardId,
+        creatorId: newTicket.creatorId,
+        assigneeId: newTicket.assigneeId,
+      }]);
+    } catch {
+      //
+    }
+
     return newTicket;
   },
 
-  updateTicket: (ticketId: string, ticketData: Partial<TicketItem>): TicketItem | null => {
+  updateTicket: async (ticketId: string, ticketData: Partial<TicketItem>): Promise<TicketItem | null> => {
     const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
     for (const board of boards) {
       const idx = board.tickets.findIndex((t) => t.id === ticketId);
@@ -314,17 +509,39 @@ export const clientStore = {
           updatedAt: new Date().toISOString(),
         };
         setStorage('storyboard_boards', boards);
+
+        try {
+          await supabase.from('Ticket').update({
+            ...(ticketData.title !== undefined && { title: ticketData.title }),
+            ...(ticketData.description !== undefined && { description: ticketData.description }),
+            ...(ticketData.state !== undefined && { state: ticketData.state }),
+            ...(ticketData.priority !== undefined && { priority: ticketData.priority }),
+            ...(ticketData.color !== undefined && { color: ticketData.color }),
+            ...(ticketData.tags !== undefined && { tags: ticketData.tags }),
+            ...(ticketData.storyPoints !== undefined && { storyPoints: ticketData.storyPoints }),
+            ...(ticketData.assigneeId !== undefined && { assigneeId: ticketData.assigneeId }),
+          }).eq('id', ticketId);
+        } catch {
+          //
+        }
+
         return board.tickets[idx];
       }
     }
     return null;
   },
 
-  deleteTicket: (ticketId: string) => {
+  deleteTicket: async (ticketId: string) => {
     const boards = getStorage<BoardDetail[]>('storyboard_boards', [DEFAULT_BOARD]);
     for (const board of boards) {
       board.tickets = board.tickets.filter((t) => t.id !== ticketId);
     }
     setStorage('storyboard_boards', boards);
+
+    try {
+      await supabase.from('Ticket').delete().eq('id', ticketId);
+    } catch {
+      //
+    }
   },
 };
