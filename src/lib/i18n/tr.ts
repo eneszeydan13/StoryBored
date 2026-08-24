@@ -1,0 +1,162 @@
+import { TranslationKey } from './en';
+
+export const tr: Record<TranslationKey, string> = {
+  // Brand & App
+  app_name: 'StoryBoard',
+  app_tagline: 'Yapışkan Notlu Çevik Geliştirme Panosu',
+  app_description: 'Yazılım sprintleri ve görev yönetimi için görsel, post-it tarzı geliştirme panosu.',
+  app_footer_note: 'Telefon ve Bilgisayar Arasında Eşzamanlı • Geliştiriciler İçin Tasarlandı',
+
+  // Hero & Landing
+  hero_badge: 'Modern Çevik Geliştirme Çalışma Alanı',
+  hero_title_1: 'Post-it Sadeliği.',
+  hero_title_2: 'Sprint Gücü.',
+  hero_description: 'Yazılım geliştirme süreçleri için tasarlanmış dokunsal, yapışkan notlu pano. Story, To Do, In Progress ve Completed durumlarıyla görevleri takip edin; bilgisayar ve telefonunuz arasında anında senkronize olun.',
+  feature_sync_title: 'Telefon ve PC Çapraz Senkronizasyon',
+  feature_sync_desc: 'Telefonunuzda bir görevi taşıyın, bulut senkronizasyonu sayesinde bilgisayar ekranınızda anında güncellensin.',
+  feature_qr_title: 'Tek Tıkla Davet & Mobil QR Kod',
+  feature_qr_desc: 'Panoya anında katılmak için davet bağlantısını paylaşın veya ekrandaki QR kodu telefon kameranızla tarayın.',
+  feature_theme_title: 'Çift Tema & İki Dil Desteği',
+  feature_theme_desc: 'Açık ahşap masa teması, göz yormayan koyu grafit modu ve tam Türkçe & İngilizce dil seçeneği.',
+
+  // Sample Cards on Landing
+  sample_story_title: 'Kullanıcı Kimlik Doğrulama',
+  sample_story_desc: 'Oturum sürekliliği ile e-posta/şifre ve kullanıcı adı girişi geliştirme.',
+  sample_todo_title: 'QR Kod ile Mobil Paylaşım',
+  sample_todo_desc: '2 saniyede panoya katılmak için doğrudan ekrandan tarayın.',
+  sample_inprogress_title: 'Koyu ve Açık Tema Seçeneği',
+  sample_inprogress_desc: 'Sıcak ahşap masa görünümü ve modern koyu grafit modu.',
+  sample_completed_title: 'Türkçe ve İngilizce Dil Desteği',
+  sample_completed_desc: 'Eksiksiz arayüz çevirileri ile tek tıkla dil değiştirme.',
+
+  // Dashboard & Projects
+  welcome_back: 'Tekrar hoş geldin',
+  dashboard_subtitle: 'Bir pano seçin veya yeni bir sprint çalışma alanı oluşturun.',
+  no_boards_title: 'Henüz proje panosu yok',
+  no_boards_desc: 'İlk geliştirme panonuzu oluşturun veya bir davet koduyla mevcut sprinte katılın.',
+  loading_projects: 'Projeler yükleniyor...',
+  loading_board: 'Panonuz yükleniyor...',
+  open_board: 'Aç',
+  delete_board: 'Panoyu Sil',
+  joining_board: 'Proje panosuna katılınıyor...',
+
+  // States
+  state_story: 'Story',
+  state_todo: 'To Do',
+  state_in_progress: 'In Progress',
+  state_completed: 'Completed',
+
+  // Actions & Buttons
+  new_ticket: 'Yeni Not',
+  create_ticket: 'Not Oluştur',
+  edit_ticket: 'Notu Düzenle',
+  delete_ticket: 'Notu Sil',
+  save_changes: 'Değişiklikleri Kaydet',
+  cancel: 'İptal',
+  confirm: 'Devam etmek istediğinize emin misiniz?',
+  delete: 'Sil',
+  share_board: 'Panoyu Paylaş',
+  join_board: 'Panoya Katıl',
+  create_board: 'Pano Oluştur',
+  new_board: 'Yeni Proje',
+  my_boards: 'Projelerim',
+  back_to_boards: 'Tüm Projeler',
+  refresh: 'Yenile',
+  search_placeholder: 'Notlar, etiketler veya açıklamada ara...',
+  filter_all: 'Tüm Öncelikler',
+  filter_by_assignee: 'Kişiye Göre Filtrele',
+  clear_filters: 'Filtreleri Temizle',
+  copy_link: 'Davet Bağlantısını Kopyala',
+  copy_btn: 'Kopyala',
+  copied: 'Kopyalandı!',
+  scan_qr: 'Telefonda Aç (QR)',
+  scan_qr_desc: 'Anında mobil cihazınızda açıp ortak çalışmak için bu QR kodu telefon kameranızla tarayın.',
+  drag_tooltip: 'Sürükleyip bırakarak taşıyın veya sıralayın',
+  quick_suggestions: 'Hızlı:',
+
+  // Priorities
+  priority_low: 'Düşük',
+  priority_medium: 'Orta',
+  priority_high: 'Yüksek',
+  priority_urgent: 'Acil',
+
+  // Post-it Colors
+  color_yellow: 'Tereyağı Sarısı',
+  color_cyan: 'Bebek Mavisi',
+  color_green: 'Adaçayı Yeşili',
+  color_pink: 'Pudra Pembe',
+  color_purple: 'Açık Leylak',
+  color_orange: 'Pastel Şeftali',
+
+  // Ticket Form
+  ticket_title: 'Not Başlığı',
+  ticket_title_placeholder: 'Örn: GitHub OAuth ile giriş yapma özelliği',
+  ticket_description: 'Açıklama & Kabul Kriterleri',
+  ticket_description_placeholder: 'Gereksinimler, detaylar, API kuralları veya notlar ekleyin...',
+  ticket_state: 'Durum / Kolon',
+  ticket_priority: 'Öncelik Seviyesi',
+  ticket_color: 'Post-it Rengi',
+  ticket_tags: 'Etiketler (virgülle ayırın)',
+  ticket_tags_placeholder: 'Özellik, Auth, UI, Hata',
+  ticket_assignee: 'Atanan Kişi',
+  ticket_assignee_hint: '(Sağ alt köşede görünür)',
+  ticket_unassigned: 'Atanmadı',
+  ticket_story_points: 'Story Puanı (Tahmini)',
+  ticket_story_points_placeholder: '1, 2, 3, 5, 8...',
+  ticket_created_by: 'Oluşturan',
+  ticket_assigned_to: 'Atanan',
+  quick_move: 'Taşı',
+
+  // Board Form
+  board_title: 'Proje Adı',
+  board_title_placeholder: 'Örn: E-Ticaret Yenileme 2025',
+  board_description: 'Proje Açıklaması (İsteğe Bağlı)',
+  board_description_placeholder: 'Sprint hedefleri ve proje detayları...',
+  board_code: 'Davet Kodu',
+  enter_code_placeholder: 'Davet kodunu veya bağlantısını yapıştırın',
+
+  // Auth & Profile
+  login: 'Giriş Yap',
+  register: 'Kayıt Ol',
+  logout: 'Çıkış Yap',
+  username: 'Kullanıcı Adı',
+  username_placeholder: 'dev_enes',
+  email: 'E-posta Adresi',
+  email_placeholder: 'gelistirici@ornek.com',
+  password: 'Şifre',
+  password_placeholder: '••••••••',
+  your_color: 'Profil & Not Renginiz',
+  your_color_desc: 'Panoda size atanan notları ayırt etmek için kendinize bir renk seçin.',
+  have_account: 'Zaten hesabınız var mı?',
+  no_account: 'Hesabınız yok mu?',
+  auth_or: 'veya',
+  guest_note: 'Bilgisayarınız ve telefonunuz arasında anında senkronize.',
+
+  // Members & Board Info
+  members: 'Takım Üyeleri',
+  owner: 'Yönetici',
+  member: 'Üye',
+  no_tickets_in_col: 'Henüz not eklenmedi.',
+  drop_here: 'Notu buraya bırakın',
+  ticket_count: 'not',
+
+  // Themes & Lang
+  theme_light: 'Açık Masa',
+  theme_dark: 'Koyu Grafit',
+  lang_en: 'English',
+  lang_tr: 'Türkçe',
+
+  // Messages & Errors
+  msg_created_ticket: 'Post-it notu başarıyla eklendi!',
+  msg_updated_ticket: 'Not güncellendi!',
+  msg_deleted_ticket: 'Not silindi.',
+  msg_board_created: 'Proje panosu oluşturuldu!',
+  msg_joined_board: 'Panoya başarıyla katıldınız!',
+  msg_completed_cheer: 'Harika iş! Görev Tamamlandı 🎉',
+  msg_error: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+  msg_fill_required: 'Lütfen zorunlu alanları doldurun.',
+  msg_invalid_credentials: 'Geçersiz e-posta/kullanıcı adı veya şifre.',
+  msg_user_exists: 'Bu e-posta veya kullanıcı adı zaten kullanımda.',
+  msg_board_not_found: 'Proje panosu bulunamadı veya görüntüleme yetkiniz yok.',
+  msg_network_error: 'Pano yüklenemedi. Lütfen internet bağlantınızı kontrol edin.',
+};

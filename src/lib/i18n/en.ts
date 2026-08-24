@@ -1,0 +1,162 @@
+export const en = {
+  // Brand & App
+  app_name: 'StoryBoard',
+  app_tagline: 'Agile Post-it Sprint Workspace',
+  app_description: 'A tactile, sticky-note development board for agile software sprints and task management.',
+  app_footer_note: 'Consistent across Phone & PC • Built for Developers',
+
+  // Hero & Landing
+  hero_badge: 'Modern Agile Development Workspace',
+  hero_title_1: 'Post-it Simplicity.',
+  hero_title_2: 'Sprint Power.',
+  hero_description: 'A tactile, sticky-note development board designed for software development. Track tasks across Story, To Do, In Progress, and Completed states with instant PC & mobile sync.',
+  feature_sync_title: 'PC & Mobile Cross-Device Sync',
+  feature_sync_desc: 'Move a ticket on your phone and watch it snap on your PC monitor immediately with real-time cloud sync.',
+  feature_qr_title: 'One-Click Invite & Mobile QR',
+  feature_qr_desc: 'Share a simple invite link or scan the on-screen QR code from your mobile camera to join the sprint board.',
+  feature_theme_title: 'Bilingual & Dual Themes',
+  feature_theme_desc: 'Full English & Turkish support with warm desk light theme and distraction-free dark slate mode.',
+
+  // Sample Cards on Landing
+  sample_story_title: 'User Authentication',
+  sample_story_desc: 'Implement email/password & username login with session persistence.',
+  sample_todo_title: 'QR Code Mobile Share',
+  sample_todo_desc: 'Scan directly from phone screen to join the board in 2 seconds.',
+  sample_inprogress_title: 'Dark & Light Themes',
+  sample_inprogress_desc: 'Warm wooden desk mode & deep graphite slate dark mode.',
+  sample_completed_title: 'Turkish & English i18n',
+  sample_completed_desc: 'Bilingual instant language switch with complete UI translations.',
+
+  // Dashboard & Projects
+  welcome_back: 'Welcome back',
+  dashboard_subtitle: 'Pick a board or create a new sprint workspace.',
+  no_boards_title: 'No project boards yet',
+  no_boards_desc: 'Create your first development board or join an existing sprint via invite code.',
+  loading_projects: 'Loading projects...',
+  loading_board: 'Loading your storyboard...',
+  open_board: 'Open',
+  delete_board: 'Delete Board',
+  joining_board: 'Joining project board...',
+
+  // States
+  state_story: 'Story',
+  state_todo: 'To Do',
+  state_in_progress: 'In Progress',
+  state_completed: 'Completed',
+
+  // Actions & Buttons
+  new_ticket: 'New Note',
+  create_ticket: 'Create Note',
+  edit_ticket: 'Edit Note',
+  delete_ticket: 'Delete Note',
+  save_changes: 'Save Changes',
+  cancel: 'Cancel',
+  confirm: 'Are you sure you want to proceed?',
+  delete: 'Delete',
+  share_board: 'Share Board',
+  join_board: 'Join Board',
+  create_board: 'Create Board',
+  new_board: 'New Project',
+  my_boards: 'My Boards',
+  back_to_boards: 'All Projects',
+  refresh: 'Refresh',
+  search_placeholder: 'Search notes, tags, descriptions...',
+  filter_all: 'All Priorities',
+  filter_by_assignee: 'Filter Assignee',
+  clear_filters: 'Clear Filters',
+  copy_link: 'Copy Invite Link',
+  copy_btn: 'Copy',
+  copied: 'Copied!',
+  scan_qr: 'Scan with Phone',
+  scan_qr_desc: 'Scan this QR code with your mobile camera to open and collaborate instantly.',
+  drag_tooltip: 'Drag to reorder or move column',
+  quick_suggestions: 'Quick:',
+
+  // Priorities
+  priority_low: 'Low',
+  priority_medium: 'Medium',
+  priority_high: 'High',
+  priority_urgent: 'Urgent',
+
+  // Post-it Colors
+  color_yellow: 'Butter Yellow',
+  color_cyan: 'Powder Sky',
+  color_green: 'Sage Mint',
+  color_pink: 'Blush Rose',
+  color_purple: 'Soft Lavender',
+  color_orange: 'Pastel Peach',
+
+  // Ticket Form
+  ticket_title: 'Ticket Title',
+  ticket_title_placeholder: 'e.g. Implement OAuth login with GitHub',
+  ticket_description: 'Description & Acceptance Criteria',
+  ticket_description_placeholder: 'Add details, requirements, API specs or markdown...',
+  ticket_state: 'Column / State',
+  ticket_priority: 'Priority',
+  ticket_color: 'Post-it Color',
+  ticket_tags: 'Tags (comma-separated)',
+  ticket_tags_placeholder: 'Feature, Auth, UI',
+  ticket_assignee: 'Assignee',
+  ticket_assignee_hint: '(Visible in bottom-right corner)',
+  ticket_unassigned: 'Unassigned',
+  ticket_story_points: 'Story Points (est.)',
+  ticket_story_points_placeholder: '1, 2, 3, 5, 8...',
+  ticket_created_by: 'Created by',
+  ticket_assigned_to: 'Assigned to',
+  quick_move: 'Move to',
+
+  // Board Form
+  board_title: 'Project Name',
+  board_title_placeholder: 'e.g. E-Commerce Redesign 2025',
+  board_description: 'Project Description (Optional)',
+  board_description_placeholder: 'Brief summary of the sprint or goals...',
+  board_code: 'Invite Code',
+  enter_code_placeholder: 'Paste invite code or URL',
+
+  // Auth & Profile
+  login: 'Sign In',
+  register: 'Create Account',
+  logout: 'Sign Out',
+  username: 'Username',
+  username_placeholder: 'dev_hero',
+  email: 'Email Address',
+  email_placeholder: 'developer@example.com',
+  password: 'Password',
+  password_placeholder: '••••••••',
+  your_color: 'Your Avatar Color',
+  your_color_desc: 'Pick your personal color to identify your assigned notes on the board.',
+  have_account: 'Already have an account?',
+  no_account: "Don't have an account?",
+  auth_or: 'or',
+  guest_note: 'Consistent across your PC and Mobile phone.',
+
+  // Members & Board Info
+  members: 'Team Members',
+  owner: 'Owner',
+  member: 'Member',
+  no_tickets_in_col: 'No sticky notes yet.',
+  drop_here: 'Drop note here',
+  ticket_count: 'notes',
+
+  // Themes & Lang
+  theme_light: 'Light Desk',
+  theme_dark: 'Dark Slate',
+  lang_en: 'English',
+  lang_tr: 'Türkçe',
+
+  // Messages & Errors
+  msg_created_ticket: 'Sticky note created successfully!',
+  msg_updated_ticket: 'Sticky note updated!',
+  msg_deleted_ticket: 'Sticky note removed.',
+  msg_board_created: 'Project board created!',
+  msg_joined_board: 'Joined project successfully!',
+  msg_completed_cheer: 'Awesome! Task moved to Completed 🎉',
+  msg_error: 'An error occurred. Please try again.',
+  msg_fill_required: 'Please fill in all required fields.',
+  msg_invalid_credentials: 'Invalid email/username or password.',
+  msg_user_exists: 'User with this email or username already exists.',
+  msg_board_not_found: 'Project board not found or you do not have permission to view it.',
+  msg_network_error: 'Failed to load board. Please check your internet connection.',
+};
+
+export type TranslationKey = keyof typeof en;
